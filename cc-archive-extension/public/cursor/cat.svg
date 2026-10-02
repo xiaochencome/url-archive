@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- 可爱小猫光标（普通态）：圆脸 + 大眼高光 + 粉耳，热点在左上 -->
+  <g stroke="#20293A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <!-- 耳朵 -->
+    <path d="M13 23 L9 7 L26 15 Z" fill="#FFC2D4"/>
+    <path d="M38 15 L55 7 L51 23 Z" fill="#FFC2D4"/>
+    <!-- 头 -->
+    <ellipse cx="32" cy="37" rx="22" ry="20" fill="#FFF7EC"/>
+  </g>
+  <!-- 耳朵内侧 -->
+  <path d="M15 20 L12.5 11 L23 15.5 Z" fill="#FF9DB8"/>
+  <path d="M41 15.5 L51.5 11 L49 20 Z" fill="#FF9DB8"/>
+  <!-- 大眼睛 -->
+  <ellipse cx="23.5" cy="34" rx="4.6" ry="5.6" fill="#20293A"/>
+  <ellipse cx="40.5" cy="34" rx="4.6" ry="5.6" fill="#20293A"/>
+  <!-- 双高光，显得水汪汪 -->
+  <circle cx="25.2" cy="32" r="1.8" fill="#FFFFFF"/>
+  <circle cx="42.2" cy="32" r="1.8" fill="#FFFFFF"/>
+  <circle cx="22.3" cy="36.6" r="0.9" fill="#FFFFFF" opacity=".85"/>
+  <circle cx="39.3" cy="36.6" r="0.9" fill="#FFFFFF" opacity=".85"/>
+  <!-- 鼻子 -->
+  <path d="M29.4 42.4 L34.6 42.4 L32 45.4 Z" fill="#FF8FA8" stroke="#20293A" stroke-width="2" stroke-linejoin="round"/>
+  <!-- 嘴 -->
+  <path d="M32 45.4 L32 48" stroke="#20293A" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M32 48 Q27.6 52 25.2 47.6" fill="none" stroke="#20293A" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M32 48 Q36.4 52 38.8 47.6" fill="none" stroke="#20293A" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- 胡须 -->
+  <g stroke="#20293A" stroke-width="1.7" stroke-linecap="round" opacity=".6">
+    <path d="M12 38 L2.5 35.5"/>
+    <path d="M12 43.5 L3 44.5"/>
+    <path d="M52 38 L61.5 35.5"/>
+    <path d="M52 43.5 L61 44.5"/>
+  </g>
+  <!-- 腮红 -->
+  <ellipse cx="17.5" cy="43.5" rx="4.6" ry="2.8" fill="#FFB4C6" opacity=".75"/>
+  <ellipse cx="46.5" cy="43.5" rx="4.6" ry="2.8" fill="#FFB4C6" opacity=".75"/>
+</svg>

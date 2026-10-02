@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CC Archive</title>
+    <meta name="manifest.type" content="newtab" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main id="app" class="newtab density-large theme-dark">
+      <div class="wallpaper" aria-hidden="true"></div>
+      <video id="bgVideo" class="bg-video" autoplay muted loop playsinline preload="auto" poster="/wallpaper/wallpaper-1.jpg" aria-hidden="true"></video>
+      <div class="scrim" aria-hidden="true"></div>
+      <div id="glowCursor" class="glow-cursor" aria-hidden="true"><span class="glow-cursor-dot"></span></div>
+
+      <header class="topbar">
+        <button class="brand" type="button" aria-label="回到全部收藏">
+          <span class="brand-mark"><img src="/icon/cc-mark.svg" alt="" /></span>
+          <span>CC Archive</span>
+        </button>
+        <section id="status" class="status" aria-live="polite"></section>
+        <div class="topbar-actions">
+          <button id="themeToggle" class="icon-tool" type="button" aria-label="切换主题" title="切换主题">
+            <svg class="theme-icon-light" aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            <svg class="theme-icon-dark" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+          <button id="settingsToggle" class="icon-tool" type="button" aria-label="设置" title="设置">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8.92 4a1.65 1.65 0 0 0 1-1.51V2a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.3.22.63.22 1H21a2 2 0 1 1 0 4h-1.38c0 .37-.08.7-.22 1Z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="stage" aria-label="新标签页">
+        <form id="webSearchForm" class="search-shell" role="search">
+          <button id="searchEngineToggle" class="engine-button" type="button" title="切换搜索引擎" aria-haspopup="listbox" aria-expanded="false">G</button>
+          <input id="searchInput" class="search" type="search" placeholder="搜索网页或收藏" autocomplete="off" />
+          <button class="search-submit" type="submit" aria-label="网页搜索">⌕</button>
+        </form>
+
+        <section class="content">
+          <!-- 只保留操作按钮；标题已下移到「书签分组」面板自身，避免重复 -->
+          <div class="content-head content-head-actions">
+            <div class="content-actions">
+              <button id="addBookmarkToggle" class="glass-button" type="button" title="添加一条浏览器书签">+ 添加书签</button>
+              <button id="recategorize" class="glass-button" type="button" title="重新清洗并归类">重新整理</button>
+              <button id="aiRecall" class="glass-button" type="button">AI 找回</button>
+              <button id="batchSelect" class="glass-button" type="button" title="批量选择书签（可跨分组）">☑ 批量选择</button>
+              <button id="newGroup" class="glass-button" type="button" title="新建一个书签分组（浏览器书签文件夹）">+ 新建分组</button>
+            </div>
+          </div>
+
+          <!-- 内联新增书签表单 -->
+          <div id="addBookmarkForm" class="add-bookmark" hidden>
+            <input id="addBookmarkUrl" type="url" placeholder="https://example.com" autocomplete="off" />
+            <input id="addBookmarkTitle" type="text" placeholder="名称（可选）" autocomplete="off" />
+            <input id="addBookmarkFolder" type="text" placeholder="文件夹（可选，如 study/math）" autocomplete="off" />
+            <div class="add-bookmark-actions">
+              <button id="addBookmarkSubmit" class="glass-button primary" type="button">添加</button>
+              <button id="addBookmarkCancel" class="glass-button" type="button">取消</button>
+            </div>
+          </div>
+
+
+          <!-- 搜索结果 / 兜底网格视图 -->
+          <div class="bookmark-grid-viewport" id="cardsViewport" hidden>
+            <div id="cards" class="bookmark-grid"></div>
+          </div>
+          <div id="domeGallery" class="dome-gallery" hidden></div>
+          <div id="pageIndicator" class="page-indicator" aria-label="分页"></div>
+        </section>
+
+        <!-- 分组胶囊导航（书签分组各自是独立面板，这里只做快速跳转） -->
+        <nav id="categoryNav" class="cat-nav" aria-label="收藏分类"></nav>
+
+        <section class="dashboard-panels" id="dashboardPanels">
+          <!-- 两列独立纵向流：每列自己排自己的，互不共享行高 -->
+          <div class="dashboard-column" id="dashboardColLeft" data-column="0"></div>
+          <div class="dashboard-column" id="dashboardColRight" data-column="1"></div>
+          <section class="panel-block" id="launcherBlock">
+            <div class="panel-head">
+              <h2>启动器</h2>
+              <span class="panel-hint" id="launcherHint"></span>
+              <button class="cur-group-add" type="button" id="launcherAdd">+ 应用</button>
+            </div>
+            <div class="launcher-grid" id="launcherGrid"></div>
+            <form class="cur-group-form launcher-form" id="launcherForm" hidden>
+              <input type="text" id="launcherName" placeholder="名称，如 本机工作台" autocomplete="off" />
+              <input type="text" id="launcherCommand" placeholder="命令，如 open -a Obsidian" autocomplete="off" />
+              <input type="url" id="launcherUrl" placeholder="启动后打开的网址（可选）" autocomplete="off" />
+              <button class="glass-button primary" type="submit">添加</button>
+              <button class="glass-button" type="button" id="launcherCancel">取消</button>
+            </form>
+          </section>
+
+          <section class="panel-block" id="clockBlock">
+            <div class="panel-head">
+              <h2>时间</h2>
+              <span class="panel-hint" id="clockHint"></span>
+            </div>
+            <div class="clock-row">
+              <div class="clock-time" id="clockTime">--:--</div>
+              <div class="clock-side">
+                <div class="clock-date" id="clockDate"></div>
+                <div class="clock-extra" id="clockExtra"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel-block" id="memoBlock">
+            <div class="panel-head">
+              <h2>备忘</h2>
+              <span class="panel-hint" id="memoHint"></span>
+            </div>
+            <div class="memo-compose">
+              <textarea id="memoInput" rows="2" placeholder="随手记点什么…（⌘/Ctrl + Enter 保存）"></textarea>
+              <div class="memo-compose-actions">
+                <div class="memo-colors" id="memoColors"></div>
+                <button id="memoAdd" class="glass-button primary" type="button">保存</button>
+              </div>
+            </div>
+            <div class="memo-list" id="memoList"></div>
+          </section>
+
+          <section class="panel-block" id="localBlock" hidden>
+            <div class="panel-head">
+              <h2>内网与自建服务</h2>
+              <span class="panel-hint" id="localHint"></span>
+            </div>
+            <div class="local-grid" id="localGrid"></div>
+          </section>
+
+          <section class="panel-block" id="frequentBlock" hidden>
+            <div class="panel-head">
+              <h2>常用书签</h2>
+              <span class="panel-hint" id="frequentHint"></span>
+            </div>
+            <div class="frequent-strip" id="frequentStrip"></div>
+          </section>
+
+          <section class="panel-block" id="tagBlock" hidden>
+            <div class="panel-head">
+              <h2>标签整理</h2>
+              <span class="panel-hint" id="tagHint"></span>
+            </div>
+            <div class="tag-cloud" id="tagCloud"></div>
+          </section>
+
+          <section class="panel-block" id="widgetBlock" hidden>
+            <div class="panel-head">
+              <h2>小组件</h2>
+              <span class="panel-hint">GitHub 趋势榜 · 可接入多个榜单</span>
+            </div>
+            <div class="widget-grid" id="widgetGrid"></div>
+          </section>
+
+          <section class="panel-block" id="githubBlock" hidden>
+            <div class="panel-head">
+              <h2>GitHub 项目</h2>
+              <span class="panel-hint" id="githubHint"></span>
+            </div>
+            <div class="github-grid" id="githubGrid"></div>
+          </section>
+        </section>
+      </section>
+
+      <aside id="rightPanel" class="bookmark-drawer" aria-label="书签">
+        <div class="bookmark-drawer-head">
+          <div>
+            <strong>书签</strong>
+            <span>分类与详细书签</span>
+          </div>
+          <button id="rightDrawerToggle" class="icon-tool subtle" type="button" aria-label="收起书签栏">›</button>
+        </div>
+        <div class="bookmark-drawer-body">
+          <nav class="drawer-category-pane" aria-label="书签分类">
+            <div id="categoryList" class="category-list"></div>
+          </nav>
+          <section class="drawer-detail-pane" aria-label="书签列表">
+            <div class="drawer-search">
+              <input id="drawerSearchInput" type="search" placeholder="搜索书签" autocomplete="off" />
+              <span aria-hidden="true">⌕</span>
+            </div>
+            <div id="detailList" class="detail-list"></div>
+          </section>
+        </div>
+      </aside>
+      <button id="rightDrawerHotspot" class="drawer-hotspot" type="button" aria-label="打开书签栏">‹</button>
+
+      <section class="bottom-dock" aria-label="回访与剪藏">
+        <article class="dock-card">
+          <h2>今日回访</h2>
+          <div id="revisitWidget" class="widget-body"></div>
+        </article>
+        <article class="dock-card">
+          <h2>最近剪藏</h2>
+          <div id="recentWidget" class="widget-body"></div>
+        </article>
+      </section>
+
+      <!-- 已移除页脚署名（与功能无关，用户要求清理） -->
+
+      <section id="settingsPanel" class="settings-panel" hidden>
+        <div class="settings-tabs">
+          <strong class="settings-title">设置</strong>
+          <button id="settingsClose" class="icon-button" type="button" aria-label="关闭设置">×</button>
+        </div>
+        <div class="settings-scroll">
+          <section class="settings-group">
+            <div class="settings-group-head">
+              <strong>页面背景</strong>
+              <button id="cycleWallpaper" class="mini-action icon-mini-action" type="button" aria-label="切换页面背景" title="切换页面背景">↻</button>
+              <button id="clearBackgroundImage" class="mini-action" type="button">恢复</button>
+            </div>
+            <!-- 背景预览：视频模式显示视频首帧，图片模式显示当前壁纸 -->
+            <div class="wallpaper-preview-wrap">
+              <video id="previewVideo" class="wallpaper-preview-video" muted loop playsinline preload="metadata" aria-hidden="true"></video>
+              <button id="wallpaperPreview" class="wallpaper-preview" type="button" aria-label="上传页面背景" title="点击上传页面背景"></button>
+            </div>
+            <div class="range-field">
+              <span>蒙版</span>
+              <input id="wallpaperMaskInput" type="range" min="0" max="100" value="58" />
+              <output id="wallpaperMaskValue" for="wallpaperMaskInput">58%</output>
+            </div>
+            <div class="range-field">
+              <span>虚化</span>
+              <input id="wallpaperBlurInput" type="range" min="0" max="100" value="0" />
+              <output id="wallpaperBlurValue" for="wallpaperBlurInput">0%</output>
+            </div>
+            <label class="field-stack">
+              <span>背景类型</span>
+              <select id="backgroundKindInput">
+                <option value="video">动态视频</option>
+                <option value="image">静态壁纸</option>
+              </select>
+            </label>
+            <input id="backgroundImageFile" type="file" accept="image/*" hidden />
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>工作台模块</strong></div>
+            <label class="field-stack">
+              <span>布局方式</span>
+              <select id="panelModeInput">
+                <option value="snap">吸附网格（推荐：两列自动平衡，不会产生空白）</option>
+                <option value="masonry">瀑布流（每列独立堆叠，适合等高面板）</option>
+                <option value="free">自由摆放（想放哪就放哪，可重叠）</option>
+              </select>
+            </label>
+            <p class="settings-note" id="panelModeNote"></p>
+            <p class="settings-note">每个书签分组和每个小组件都是独立模块。拖动标题前的 ⠿ 排序/移动，拖右下角调整大小，⇔ 跳到下一档宽度，× 收起。按住 Shift 可精细调整。</p>
+            <div id="panelSettingsList" class="panel-settings-list"></div>
+            <button id="resetPanelLayout" class="wide-action" type="button">恢复默认模块布局</button>
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>新标签页</strong></div>
+            <label class="toggle-field"><span>接管新标签页</span><input id="newTabTakeoverInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <p class="settings-note">关闭后 Chrome 新标签页恢复原生；随时可在扩展弹窗点「工作台」回到这里。</p>
+            <label class="field-stack">
+              <span>关闭后跳转到</span>
+              <input id="newTabRedirectInput" type="url" placeholder="留空则用当前搜索引擎主页" />
+            </label>
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>模块</strong></div>
+            <label class="toggle-field"><span>GitHub 项目</span><input id="githubProjectsInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <label class="toggle-field"><span>小组件（趋势榜）</span><input id="widgetsInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <label class="field-stack">
+              <span>GitHub Token（可选，提高限额）</span>
+              <input id="githubTokenInput" type="password" placeholder="ghp_… 留空则用匿名限额" autocomplete="off" />
+            </label>
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>观感</strong></div>
+            <label class="toggle-field"><span>组件发光</span><input id="glowEnabledInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <label class="toggle-field"><span>发光可爱鼠标</span><input id="cuteCursorInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <label class="toggle-field"><span>3D 倾斜 / 鼠标视差</span><input id="tiltEnabledInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <p class="settings-note">每个书签、每个排名各自独立倾斜（不再整组一起转）。</p>
+            <label class="toggle-field"><span>书签行也倾斜</span><input id="tiltOnRowsInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <label class="toggle-field"><span>删除书签前确认</span><input id="confirmBeforeDeleteInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <label class="toggle-field"><span>操作后浮动提示</span><input id="showToastInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <div class="range-field">
+              <span>倾斜角度</span>
+              <input id="tiltMaxDegInput" type="range" min="0" max="30" step="1" />
+              <output id="tiltMaxDegValue" for="tiltMaxDegInput">10°</output>
+            </div>
+            <div class="range-field">
+              <span>悬停放大</span>
+              <input id="tiltScaleInput" type="range" min="100" max="120" step="1" />
+              <output id="tiltScaleValue" for="tiltScaleInput">103%</output>
+            </div>
+            <div class="range-field">
+              <span>阴影位移</span>
+              <input id="tiltShadowInput" type="range" min="0" max="60" step="1" />
+              <output id="tiltShadowValue" for="tiltShadowInput">16px</output>
+            </div>
+            <div class="range-field">
+              <span>图标浮起</span>
+              <input id="tiltLiftInput" type="range" min="0" max="80" step="1" />
+              <output id="tiltLiftValue" for="tiltLiftInput">16px</output>
+            </div>
+            <div class="range-field">
+              <span>文字浮起</span>
+              <input id="tiltTextLiftInput" type="range" min="0" max="120" step="1" />
+              <output id="tiltTextLiftValue" for="tiltTextLiftInput">30px</output>
+            </div>
+            <div class="range-field">
+              <span>透视强度</span>
+              <input id="tiltPerspectiveInput" type="range" min="300" max="3000" step="50" />
+              <output id="tiltPerspectiveValue" for="tiltPerspectiveInput">900px</output>
+            </div>
+            <label class="toggle-field"><span>背景视频</span><input id="backgroundVideoInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>搜索结果网格</strong></div>
+            <p class="settings-note">只影响搜索/筛选结果的分页网格；工作台主页的分组看板用上方「显示 → 看板列数」控制。</p>
+            <div class="layout-presets" aria-label="布局预设">
+              <button class="layout-preset" type="button" data-columns="2" data-rows="3">2×3</button>
+              <button class="layout-preset" type="button" data-columns="3" data-rows="3">3×3</button>
+              <button class="layout-preset active" type="button" data-columns="4" data-rows="3">4×3</button>
+              <button class="layout-preset" type="button" data-columns="5" data-rows="3">5×3</button>
+              <button class="layout-preset" type="button" data-columns="6" data-rows="3">6×3</button>
+              <button class="layout-preset" type="button" data-columns="4" data-rows="4">4×4</button>
+            </div>
+            <div class="range-field">
+              <span>单行列数</span>
+              <input id="gridColumnsInput" type="range" min="2" max="12" step="1" />
+              <output id="gridColumnsValue" for="gridColumnsInput">4</output>
+            </div>
+            <div class="range-field">
+              <span>单页行数</span>
+              <input id="gridRowsInput" type="range" min="1" max="8" step="1" />
+              <output id="gridRowsValue" for="gridRowsInput">3</output>
+            </div>
+            <label class="toggle-field"><span>画廊模式（3D 圆顶）</span><input id="galleryModeInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>书签清洗</strong></div>
+            <p class="settings-note">自动给收藏打重要度分，只留下真正用过的那部分，并按主类归类。</p>
+            <div class="range-field">
+              <span>保留比例</span>
+              <input id="curateKeepRatioInput" type="range" min="1" max="100" step="1" />
+              <output id="curateKeepRatioValue" for="curateKeepRatioInput">10%</output>
+            </div>
+            <div class="range-field">
+              <span>每类条数</span>
+              <input id="curatePerCategoryInput" type="range" min="3" max="40" step="1" />
+              <output id="curatePerCategoryValue" for="curatePerCategoryInput">14</output>
+            </div>
+            <label class="toggle-field"><span>显示「常用书签」面板</span><input id="showFrequentPanelInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <label class="toggle-field"><span>显示「标签整理」面板</span><input id="showTagPanelInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>卡片信息</strong></div>
+            <label class="toggle-field"><span>显示标题与网址</span><input id="showLabelsInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <label class="toggle-field"><span>显示标签</span><input id="showTagsInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <label class="toggle-field"><span>显示摘要</span><input id="showSummaryInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <label class="field-stack">
+              <span>排序方式</span>
+              <select id="cardSortInput">
+                <option value="frequent">常用优先</option>
+                <option value="recent">最近使用</option>
+                <option value="title">标题</option>
+                <option value="domain">域名</option>
+                <option value="manual">默认顺序</option>
+              </select>
+            </label>
+            <label class="field-stack">
+              <span>信息密度</span>
+              <select id="cardDensityInput">
+                <option value="comfortable">舒适</option>
+                <option value="compact">紧凑</option>
+              </select>
+            </label>
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>图标</strong></div>
+            <label class="toggle-field"><span>彩色描边光晕</span><input id="iconGlowInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <div class="range-field">
+              <span>卡片圆角</span>
+              <input id="cardRadiusInput" type="range" min="0" max="50" step="1" />
+              <output id="cardRadiusValue" for="cardRadiusInput">18</output>
+            </div>
+            <div class="range-field">
+              <span>图标大小</span>
+              <input id="iconSizeInput" type="range" min="50" max="150" step="1" />
+              <output id="iconSizeValue" for="iconSizeInput">100%</output>
+            </div>
+            <div class="range-field">
+              <span>列间距</span>
+              <input id="columnGapInput" type="range" min="0" max="120" step="1" />
+              <output id="columnGapValue" for="columnGapInput">20px</output>
+            </div>
+            <div class="range-field">
+              <span>行间距</span>
+              <input id="rowGapInput" type="range" min="0" max="120" step="1" />
+              <output id="rowGapValue" for="rowGapInput">20px</output>
+            </div>
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>搜索框</strong></div>
+            <div class="engine-config">
+              <div class="engine-config-head">
+                <span>搜索引擎</span>
+                <span class="engine-config-hint">地址用 %s 表示查询词</span>
+              </div>
+              <div id="engineList" class="engine-list"></div>
+              <button id="addEngine" class="tool wide-action" type="button">+ 添加搜索引擎</button>
+              <input id="engineIconFile" type="file" accept="image/*" hidden />
+            </div>
+            <label class="toggle-field"><span>隐藏搜索框</span><input id="searchBoxVisibleInput" type="checkbox" /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <div class="range-field"><span>搜索框大小</span><input id="searchBoxWidthInput" type="range" min="50" max="100" value="75" /><output id="searchBoxWidthValue" for="searchBoxWidthInput">75%</output></div>
+            <div class="range-field"><span>搜索框圆角</span><input id="searchBoxRadiusInput" type="range" min="0" max="50" value="9" /><output id="searchBoxRadiusValue" for="searchBoxRadiusInput">9px</output></div>
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>字体</strong></div>
+            <label class="edit-field">
+              <span>页面显示字体</span>
+              <select id="fontFamilyInput" class="font-select">
+                <option value="system">默认（系统字体）</option>
+                <option value="smiley-sans">得意黑 Smiley Sans（倾斜黑体）</option>
+                <option value="zcool-kuaile">站酷快乐体（圆润可爱）</option>
+                <option value="zcool-qingke">站酷庆科黄油体（粗圆）</option>
+                <option value="zcool-xiaowei">站酷小薇体（清秀）</option>
+                <option value="ma-shan-zheng">马善政毛笔楷书（手写）</option>
+                <option value="long-cang">龙藏体（飘逸手写）</option>
+              </select>
+            </label>
+            <label class="toggle-field"><span>字体阴影</span><input id="fontShadowInput" type="checkbox" checked /><span class="toggle-switch" aria-hidden="true"></span></label>
+            <div class="range-field"><span>字体大小</span><input id="fontSizeInput" type="range" min="10" max="18" value="13" /><output id="fontSizeValue" for="fontSizeInput">13</output></div>
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>动画</strong></div>
+            <div class="segmented">
+              <button class="tool density-button" type="button" data-density="standard">默认</button>
+              <button class="tool density-button" type="button" data-density="compact">紧凑</button>
+              <button class="tool density-button active" type="button" data-density="large">放大</button>
+            </div>
+            <button id="resetDefaultPrefs" class="wide-action danger-action" type="button">重置-默认设置</button>
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>插件操作</strong></div>
+            <button id="clipCurrent" class="wide-action" type="button">剪藏最近网页</button>
+            <button id="importBookmarks" class="wide-action" type="button">导入浏览器书签</button>
+            <button id="openSettings" class="wide-action" type="button">打开扩展设置</button>
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>清理浏览器书签</strong></div>
+            <p class="settings-note">
+              扫描浏览器书签，保留学业/账号/常用工具，清掉过期与低价值条目。
+              <b>删除不可恢复</b>，请先点「扫描」预览结果。
+            </p>
+            <button id="scanBookmarks" class="wide-action" type="button">扫描并预览</button>
+            <div id="cleanupPreview" class="cleanup-preview" hidden></div>
+            <button id="applyCleanup" class="wide-action danger-action" type="button" hidden>确认删除这些书签</button>
+          </section>
+
+          <section class="settings-group">
+            <div class="settings-group-head"><strong>备份与恢复书签</strong></div>
+            <p class="settings-note">
+              导出全部浏览器书签为 JSON 备份；也可以选择备份文件，把已删除的书签恢复回来（按文件夹逐级重建，不会重复添加已存在的）。
+            </p>
+            <button id="exportBookmarks" class="wide-action" type="button">导出书签备份</button>
+            <button id="pickRestoreFile" class="wide-action" type="button">选择备份文件并预览恢复</button>
+            <input id="restoreFile" type="file" accept=".json,application/json" hidden />
+            <div id="restorePreview" class="cleanup-preview" hidden></div>
+            <button id="applyRestore" class="wide-action" type="button" hidden>确认恢复这些书签</button>
+          </section>
+        </div>
+      </section>
+
+      <section id="editPanel" class="edit-panel" hidden>
+        <div class="edit-head">
+          <strong>编辑收藏</strong>
+          <button id="editClose" class="icon-button" type="button" aria-label="关闭编辑">×</button>
+        </div>
+        <label class="edit-field">
+          <span>名称</span>
+          <input id="editTitle" type="text" placeholder="收藏名称" />
+        </label>
+        <label class="edit-field">
+          <span>收藏夹栏</span>
+          <select id="editFolder"></select>
+        </label>
+        <div class="edit-field">
+          <span>图标</span>
+          <div class="icon-edit-row">
+            <div id="editIconPreview" class="icon-edit-preview"></div>
+            <div class="icon-edit-inputs">
+              <input id="editFaviconUrl" type="url" placeholder="图标 URL" />
+              <input id="editFaviconFile" type="file" accept="image/*" hidden />
+              <div class="icon-edit-actions">
+                <button id="uploadFavicon" class="tool" type="button">上传</button>
+                <button id="editClearFavicon" class="tool" type="button">恢复默认图标</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="edit-actions">
+          <button id="editSave" class="tool primary" type="button">保存</button>
+          <button id="editCancel" class="tool" type="button">取消</button>
+        </div>
+      </section>
+    </main>
+    <!-- 操作反馈浮层 -->
+    <div id="toastHost" class="toast-host" aria-live="polite" aria-atomic="true"></div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

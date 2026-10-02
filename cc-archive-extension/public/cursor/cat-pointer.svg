@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- 可爱小猫光标（可点击态）：眯眼笑 + 举爪 + 星光 -->
+  <g stroke="#20293A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M13 23 L9 7 L26 15 Z" fill="#FFC2D4"/>
+    <path d="M38 15 L55 7 L51 23 Z" fill="#FFC2D4"/>
+    <ellipse cx="32" cy="37" rx="22" ry="20" fill="#FFF7EC"/>
+  </g>
+  <path d="M15 20 L12.5 11 L23 15.5 Z" fill="#FF9DB8"/>
+  <path d="M41 15.5 L51.5 11 L49 20 Z" fill="#FF9DB8"/>
+  <!-- 开心眯眼 ^ ^ -->
+  <path d="M18.5 33 Q23.5 27 28.5 33" fill="none" stroke="#20293A" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M35.5 33 Q40.5 27 45.5 33" fill="none" stroke="#20293A" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- 鼻子与嘴 -->
+  <path d="M29.4 42 L34.6 42 L32 45 Z" fill="#FF8FA8" stroke="#20293A" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M32 45 L32 47.6" stroke="#20293A" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M32 47.6 Q27.6 51.6 25.2 47.2" fill="none" stroke="#20293A" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M32 47.6 Q36.4 51.6 38.8 47.2" fill="none" stroke="#20293A" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- 举起的猫爪 -->
+  <g stroke="#20293A" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">
+    <ellipse cx="50" cy="52" rx="9" ry="8" fill="#FFF7EC"/>
+    <path d="M45.5 48.5 L44.5 44.5"/>
+    <path d="M50 47.5 L50 43.5"/>
+    <path d="M54.5 48.5 L55.5 44.5"/>
+  </g>
+  <!-- 腮红 -->
+  <ellipse cx="17.5" cy="42.5" rx="4.6" ry="2.8" fill="#FFB4C6" opacity=".8"/>
+  <ellipse cx="46.5" cy="42.5" rx="4.6" ry="2.8" fill="#FFB4C6" opacity=".8"/>
+  <!-- 星光 -->
+  <path d="M56 20 L58 25.5 L63.5 27.5 L58 29.5 L56 35 L54 29.5 L48.5 27.5 L54 25.5 Z"
+        fill="#FFD966" stroke="#20293A" stroke-width="1.6" stroke-linejoin="round"/>
+  <g stroke="#20293A" stroke-width="1.7" stroke-linecap="round" opacity=".6">
+    <path d="M12 38 L3 35.5"/>
+    <path d="M52 37 L60.5 34.5"/>
+  </g>
+</svg>

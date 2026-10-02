@@ -1,0 +1,239 @@
+import { loadSettings, saveSettings } from '@/lib/settings';
+import { enrichClip } from '@/lib/llm';
+import { originPattern, requestOriginAccess } from '@/lib/permissions';
+import type { Settings, VaultTarget } from '@/lib/types';
+
+const fields: (keyof Settings)[] = [
+  'llmBaseUrl', 'llmApiKey', 'llmModel',
+  'vaultTarget', 'restApiUrl', 'restApiToken', 'officialApiUrl', 'officialApiToken', 'vaultFolder',
+];
+
+const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 13 1 13a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9 9 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/></svg>';
+
+const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+const vaultTargetEl = el<HTMLInputElement>('vaultTarget');
+
+/** 依据隐藏字段的写入通道，联动分段控件选中态与端点分组显隐 */
+function syncTarget() {
+  const target = vaultTargetEl.value || 'official';
+  document.querySelectorAll<HTMLButtonElement>('.segmented button').forEach((btn) => {
+    btn.setAttribute('aria-selected', String(btn.dataset.target === target));
+  });
+  el('officialFields').hidden = target !== 'official';
+  el('restApiFields').hidden = target !== 'restApi';
+}
+
+function bindSegmented() {
+  document.querySelectorAll<HTMLButtonElement>('.segmented button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      vaultTargetEl.value = btn.dataset.target as VaultTarget;
+      syncTarget();
+    });
+  });
+}
+
+/** 密钥字段的明文切换 */
+function bindReveals() {
+  document.querySelectorAll<HTMLButtonElement>('[data-reveal]').forEach((btn) => {
+    const input = el<HTMLInputElement>(btn.dataset.reveal!);
+    btn.innerHTML = EYE;
+    btn.addEventListener('click', () => {
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.innerHTML = show ? EYE_OFF : EYE;
+    });
+  });
+}
+
+function setStatus(node: HTMLElement, text: string, kind: '' | 'ok' | 'err' | 'busy') {
+  node.textContent = text;
+  node.className = `status${kind ? ` ${kind}` : ''}`;
+}
+
+async function init() {
+  const s = await loadSettings();
+  for (const f of fields) {
+    el<HTMLInputElement>(f).value = String(s[f] ?? '');
+  }
+  bindSegmented();
+  bindReveals();
+  syncTarget();
+}
+
+function collectSettings(): Settings {
+  const partial: Partial<Settings> = {};
+  for (const f of fields) {
+    partial[f] = el<HTMLInputElement>(f).value as never;
+  }
+  return partial as Settings;
+}
+
+/** 在用户手势内申请一组端点 URL 对应的 host 权限；返回是否全部获批 */
+async function ensureEndpointAccess(urls: string[]): Promise<boolean> {
+  const origins = [...new Set(urls.map(originPattern).filter((o): o is string => o !== null))];
+  return requestOriginAccess(origins);
+}
+
+function resolveVaultUrl(s: Settings): string {
+  return (s.vaultTarget || 'official') === 'official' ? s.officialApiUrl : s.restApiUrl;
+}
+
+el('save').addEventListener('click', async () => {
+  const btn = el<HTMLButtonElement>('save');
+  const saved = el('saved');
+  btn.disabled = true;
+  try {
+    const s = collectSettings();
+    const granted = await ensureEndpointAccess([resolveVaultUrl(s), s.llmBaseUrl]);
+    await saveSettings(s);
+    setStatus(saved, granted ? '✓ 设置已保存' : '✓ 已保存（部分端点未授权，剪藏时会提示重新授权）', granted ? 'ok' : 'err');
+  } catch (error) {
+    setStatus(saved, `保存失败：${error instanceof Error ? error.message : String(error)}`, 'err');
+  } finally {
+    btn.disabled = false;
+    window.setTimeout(() => { if (saved.classList.contains('ok')) setStatus(saved, '', ''); }, 2400);
+  }
+});
+
+el('testAi').addEventListener('click', async () => {
+  const status = el('aiStatus');
+  setStatus(status, '测试中…', 'busy');
+  try {
+    await ensureEndpointAccess([collectSettings().llmBaseUrl]);
+    const result = await enrichClip({
+      url: 'https://example.com/test',
+      title: 'CC Archive AI 配置测试',
+      selection: '',
+      contentMarkdown: '这是一段用于测试 AI 摘要和标签生成的内容。浏览器收藏太多时，需要自动摘要、标签和搜索能力帮助找回有价值的网页。',
+      clippedAt: new Date().toISOString(),
+    }, collectSettings());
+    const tags = result.tags.length ? `；标签：${result.tags.join('、')}` : '';
+    setStatus(status, `✓ 测试成功：${result.summary || '已返回结果'}${tags}`, 'ok');
+  } catch (error) {
+    setStatus(status, `测试失败：${error instanceof Error ? error.message : String(error)}`, 'err');
+  }
+});
+
+/** 测试指定写入通道的服务连通性：能收到任意 HTTP 响应即视为可达 */
+async function testVault(target: VaultTarget) {
+  const urlId = target === 'official' ? 'officialApiUrl' : 'restApiUrl';
+  const tokenId = target === 'official' ? 'officialApiToken' : 'restApiToken';
+  const status = document.querySelector<HTMLElement>(`[data-vault-status="${target}"]`)!;
+  const base = el<HTMLInputElement>(urlId).value.trim().replace(/\/+$/, '');
+  const token = el<HTMLInputElement>(tokenId).value.trim().replace(/^Bearer\s+/i, '');
+
+  if (!base) {
+    setStatus(status, '请先填写服务地址', 'err');
+    return;
+  }
+
+  setStatus(status, '连接中…', 'busy');
+  const ctrl = new AbortController();
+  const timer = window.setTimeout(() => ctrl.abort(), 4000);
+  try {
+    await ensureEndpointAccess([base]);
+    const res = await fetch(`${base}/`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      signal: ctrl.signal,
+    });
+    setStatus(status, `✓ 服务可达（HTTP ${res.status}）`, 'ok');
+  } catch (error) {
+    const msg = ctrl.signal.aborted ? '超时（4s）' : error instanceof Error ? error.message : String(error);
+    setStatus(status, `无法连接：${msg}`, 'err');
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
+document.querySelectorAll<HTMLButtonElement>('[data-test-vault]').forEach((btn) => {
+  btn.addEventListener('click', () => testVault(btn.dataset.testVault as VaultTarget));
+});
+
+/* ------------------------------------------------------------ 一键配对 Obsidian */
+
+const PAIR_CANDIDATES = [
+  'http://127.0.0.1:27125',
+  'http://localhost:27125',
+];
+
+/**
+ * 用配对码从本机 Obsidian 插件换取 Token 并自动填好设置。
+ *
+ * 为什么需要配对码：剪藏服务的 CORS 是 `*`，任何网页都能访问 127.0.0.1，
+ * 若开放无鉴权的取 Token 接口，等于把 vault 写入凭据交给任意站点。
+ * 配对码由用户在 Obsidian 里生成、一次性使用，因此可以安全地做自动配置。
+ */
+async function pairObsidian() {
+  const btn = el<HTMLButtonElement>('pairObsidian');
+  const status = el<HTMLElement>('pairStatus');
+  const detail = el<HTMLElement>('pairDetail');
+  const code = el<HTMLInputElement>('pairCode').value.trim();
+
+  if (!code) {
+    setStatus(status, '请先填入 Obsidian 里的配对码', 'err');
+    return;
+  }
+
+  btn.disabled = true;
+  setStatus(status, '正在连接本机 Obsidian…', 'busy');
+  detail.textContent = '';
+
+  const tried: string[] = [];
+  for (const base of PAIR_CANDIDATES) {
+    const ctrl = new AbortController();
+    const timer = window.setTimeout(() => ctrl.abort(), 4000);
+    try {
+      await ensureEndpointAccess([base]);
+      const res = await fetch(`${base}/pair`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+        signal: ctrl.signal,
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({})) as { error?: string };
+        tried.push(`${base} → HTTP ${res.status}${body.error ? `（${body.error}）` : ''}`);
+        continue;
+      }
+
+      const data = await res.json() as { token?: string; archiveFolder?: string; port?: number };
+      if (!data.token) {
+        tried.push(`${base} → 返回里没有 Token`);
+        continue;
+      }
+
+      // 填好官方插件通道
+      el<HTMLInputElement>('officialApiUrl').value = base;
+      el<HTMLInputElement>('officialApiToken').value = data.token;
+      if (data.archiveFolder) el<HTMLInputElement>('vaultFolder').value = data.archiveFolder;
+      vaultTargetEl.value = 'official';
+      syncTarget();
+
+      setStatus(status, '✓ 已连接，正在保存…', 'ok');
+      detail.textContent = `地址：${base}\nToken：已自动填入\nvault 文件夹：${data.archiveFolder || '（沿用当前值）'}\n\n点下方「保存设置」后即可开始剪藏。`;
+      await saveCurrent();
+      setStatus(status, '✓ 已连接并保存', 'ok');
+      return;
+    } catch (error) {
+      const msg = ctrl.signal.aborted ? '超时' : (error instanceof Error ? error.message : String(error));
+      tried.push(`${base} → ${msg}`);
+    } finally {
+      window.clearTimeout(timer);
+    }
+  }
+
+  setStatus(status, '✗ 未能连接，请确认 Obsidian 已打开且剪藏服务已启用', 'err');
+  detail.textContent = tried.join('\n');
+}
+
+/** 保存当前表单（复用保存按钮的逻辑） */
+async function saveCurrent(): Promise<void> {
+  const s = collectSettings();
+  await saveSettings(s);
+  el<HTMLElement>('saved').textContent = '已保存';
+}
+
+el('pairObsidian').addEventListener('click', () => { void pairObsidian(); });
+
+init();

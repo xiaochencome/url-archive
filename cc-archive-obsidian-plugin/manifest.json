@@ -1,0 +1,9 @@
+{
+  "id": "cc-archive",
+  "name": "CC Archive",
+  "version": "0.1.1",
+  "minAppVersion": "1.5.0",
+  "description": "Search and revive CC Archive clipped notes.",
+  "author": "cc",
+  "isDesktopOnly": false
+}

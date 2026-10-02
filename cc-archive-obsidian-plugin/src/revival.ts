@@ -1,0 +1,58 @@
+import type { CcArchiveEntry } from './archive-index';
+
+export function getDormantEntries(
+  entries: CcArchiveEntry[],
+  now: Date,
+  dormantDays: number,
+  limit = 5,
+): CcArchiveEntry[] {
+  const cutoff = now.getTime() - dormantDays * 24 * 60 * 60 * 1000;
+  return [...entries]
+    .filter((entry) => entry.status !== 'archived')
+    .filter((entry) => {
+      const lastTouch = Date.parse(entry.lastVisited || entry.clipped);
+      return Number.isFinite(lastTouch) && lastTouch <= cutoff;
+    })
+    .sort((a, b) => {
+      if (a.revived !== b.revived) return a.revived - b.revived;
+      const aTouch = a.lastVisited || a.clipped;
+      const bTouch = b.lastVisited || b.clipped;
+      return aTouch.localeCompare(bTouch);
+    })
+    .slice(0, limit);
+}
+
+export function renderDormantReviewMarkdown(
+  entries: CcArchiveEntry[],
+  generatedAt: Date,
+  dormantDays?: number,
+): string {
+  const date = generatedAt.toISOString().slice(0, 10);
+  const lines = [
+    '---',
+    'type: cc-archive-review',
+    `generated: ${generatedAt.toISOString()}`,
+    '---',
+    '',
+    `# CC Archive 回顾 - ${date}`,
+    '',
+  ];
+
+  if (!entries.length) {
+    const scope = dormantDays ? `超过 ${dormantDays} 天未访问的` : '达到沉睡阈值的';
+    lines.push(`当前没有${scope}收藏，说明你的收藏都在活跃复习中 👍`);
+    return `${lines.join('\n')}\n`;
+  }
+
+  lines.push('## 值得回访');
+  lines.push('');
+  for (const entry of entries) {
+    lines.push(`- [ ] [[${entry.path}|${entry.title || entry.url}]]`);
+    lines.push(`  - URL: ${entry.url}`);
+    if (entry.summary) lines.push(`  - 摘要: ${entry.summary}`);
+    if (entry.intent) lines.push(`  - 回访场景: ${entry.intent}`);
+    if (entry.tags.length) lines.push(`  - 标签: ${entry.tags.join('、')}`);
+    lines.push(`  - 已复活: ${entry.revived} 次`);
+  }
+  return `${lines.join('\n')}\n`;
+}

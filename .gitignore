@@ -1,0 +1,23 @@
+# 依赖与构建产物
+node_modules/
+.output/
+.output-fixed/
+.output-check/
+.wxt/
+
+# 工具/编辑器本地目录
+.obsidian/
+.serena/
+.superpowers/
+.spec-workflow/
+.vscode/
+.idea/
+.DS_Store
+
+# 本地 vault 与调试素材（不属于代码库）
+/CC Archive/
+/*.png
+/*.mp4
+
+# 日志
+*.log

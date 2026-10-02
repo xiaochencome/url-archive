@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CC Archive 设置</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="masthead">
+        <span class="mark"><img src="/icon/cc-mark.svg" alt="" /></span>
+        <div>
+          <h1>CC Archive</h1>
+          <p>扩展设置 · AI 智能处理与 Obsidian 写入</p>
+        </div>
+      </header>
+
+      <div class="card">
+        <!-- AI -->
+        <section class="section">
+          <div class="section-head"><span class="dot"></span><h2>AI 智能处理（BYOK）</h2></div>
+          <p class="section-desc">自带 API Key，剪藏时自动生成摘要、标签、关键词与回访场景。兼容 OpenAI 格式端点。</p>
+
+          <div class="field">
+            <label for="llmBaseUrl">API 端点</label>
+            <input id="llmBaseUrl" type="url" placeholder="https://open.bigmodel.cn/api/paas/v4" />
+          </div>
+          <div class="field">
+            <label for="llmApiKey">API Key</label>
+            <div class="input-row">
+              <input id="llmApiKey" type="password" placeholder="sk-..." autocomplete="off" />
+              <button class="icon-btn" type="button" data-reveal="llmApiKey" title="显示/隐藏" aria-label="显示或隐藏"></button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="llmModel">模型</label>
+            <input id="llmModel" placeholder="glm-5.2" />
+          </div>
+          <div class="action-row">
+            <button id="testAi" class="btn" type="button">测试 AI</button>
+            <span id="aiStatus" class="status"></span>
+          </div>
+        </section>
+
+        <!-- Obsidian 写入 -->
+        <section class="section">
+          <div class="section-head"><span class="dot"></span><h2>Obsidian 写入</h2></div>
+          <p class="section-desc">选择剪藏落盘的通道。推荐使用 CC Archive 官方插件，无需额外安装 Local REST API。</p>
+
+          <!-- 一键打通：自动探测本机插件并填入地址与 Token -->
+          <div class="pair-box">
+            <div class="pair-head">
+              <strong>一键连接 Obsidian</strong>
+              <span class="pair-hint">自动读取本机插件的剪藏服务地址与 Token</span>
+            </div>
+            <div class="field">
+              <label for="pairCode">配对码</label>
+              <input id="pairCode" type="text" inputmode="numeric" placeholder="在 Obsidian 插件设置里点「生成配对码」" autocomplete="off" />
+              <span class="hint">配对码一次性有效，用完即失效。</span>
+            </div>
+            <div class="action-row">
+              <button id="pairObsidian" class="btn primary" type="button">自动连接</button>
+              <span id="pairStatus" class="status"></span>
+            </div>
+            <p id="pairDetail" class="pair-detail"></p>
+          </div>
+
+          <input id="vaultTarget" type="hidden" />
+          <div class="segmented" role="tablist" aria-label="写入通道">
+            <button type="button" role="tab" data-target="official">
+              官方插件<span class="seg-sub">推荐 · 免额外安装</span>
+            </button>
+            <button type="button" role="tab" data-target="restApi">
+              Local REST API<span class="seg-sub">第三方插件</span>
+            </button>
+          </div>
+
+          <!-- 官方插件 -->
+          <div id="officialFields" class="endpoint">
+            <div class="field">
+              <label for="officialApiUrl">服务地址</label>
+              <input id="officialApiUrl" type="url" placeholder="http://127.0.0.1:27125" />
+              <span class="hint">在 Obsidian 的 CC Archive 插件设置中开启「剪藏服务」，端口需一致。</span>
+            </div>
+            <div class="field">
+              <label for="officialApiToken">访问 Token</label>
+              <div class="input-row">
+                <input id="officialApiToken" type="password" placeholder="从插件设置复制" autocomplete="off" />
+                <button class="icon-btn" type="button" data-reveal="officialApiToken" title="显示/隐藏" aria-label="显示或隐藏"></button>
+              </div>
+            </div>
+            <div class="action-row">
+              <button class="btn" type="button" data-test-vault="official">测试连接</button>
+              <span class="status" data-vault-status="official"></span>
+            </div>
+          </div>
+
+          <!-- Local REST API -->
+          <div id="restApiFields" class="endpoint">
+            <div class="field">
+              <label for="restApiUrl">服务地址</label>
+              <input id="restApiUrl" type="url" placeholder="http://127.0.0.1:27123" />
+            </div>
+            <div class="field">
+              <label for="restApiToken">Token</label>
+              <div class="input-row">
+                <input id="restApiToken" type="password" placeholder="Local REST API 的 API Key" autocomplete="off" />
+                <button class="icon-btn" type="button" data-reveal="restApiToken" title="显示/隐藏" aria-label="显示或隐藏"></button>
+              </div>
+            </div>
+            <div class="action-row">
+              <button class="btn" type="button" data-test-vault="restApi">测试连接</button>
+              <span class="status" data-vault-status="restApi"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 通用 -->
+        <section class="section">
+          <div class="section-head"><span class="dot"></span><h2>通用</h2></div>
+          <div class="field">
+            <label for="vaultFolder">vault 文件夹</label>
+            <input id="vaultFolder" placeholder="CC Archive" />
+            <span class="hint">剪藏笔记在 vault 中的存放目录。</span>
+          </div>
+        </section>
+      </div>
+
+      <footer class="footer">
+        <span id="saved" class="save-hint"></span>
+        <button id="save" class="btn primary" type="button">保存设置</button>
+      </footer>
+    </div>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

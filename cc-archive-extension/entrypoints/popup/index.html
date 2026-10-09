@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>剪藏到 Obsidian</title>
+    <meta name="manifest.type" content="browser_action" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark"><img src="/icon/cc-mark.svg" alt="" /></span>
+          <div>
+            <h1>CC Archive</h1>
+            <p id="stats" class="stats">正在读取收藏...</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button id="openWorkbench" class="ghost accent-ghost" type="button" title="打开新标签页工作台">工作台</button>
+          <button id="importBookmarks" class="ghost" type="button">导入书签</button>
+        </div>
+      </header>
+
+      <div class="panel-scroll">
+        <section class="capture">
+          <textarea id="why" placeholder="为什么留它？（可选）" rows="2"></textarea>
+          <button id="clip" class="primary" type="button">剪藏当前网页</button>
+          <p id="status" class="status"></p>
+        </section>
+
+        <section id="quickLocal" class="quick-local" hidden>
+          <div class="revisit-head">
+            <span>内网与自建服务</span>
+            <span id="quickLocalCount" class="revisit-meta"></span>
+          </div>
+          <div id="quickLocalList" class="quick-local-list"></div>
+        </section>
+
+        <section id="revisit" class="revisit" hidden>
+          <div class="revisit-head">
+            <span>回访一条收藏</span>
+            <span id="revisitMeta" class="revisit-meta"></span>
+          </div>
+          <button id="revisitOpen" class="revisit-open" type="button">
+            <span id="revisitTitle"></span>
+            <small id="revisitSummary"></small>
+          </button>
+        </section>
+
+        <section class="search">
+          <input id="search" type="search" placeholder="搜索标题、标签、摘要、文件夹、备注、URL" autocomplete="off" />
+          <div class="filters" aria-label="收藏筛选">
+            <button type="button" class="filter active" data-filter="all">全部</button>
+            <button type="button" class="filter" data-filter="clip">剪藏</button>
+            <button type="button" class="filter" data-filter="bookmark">书签</button>
+            <button type="button" class="filter" data-filter="unvisited" title="未通过 CC Archive 打开，或浏览器未提供最近使用时间">未回访</button>
+          </div>
+          <section id="categoryNav" class="category-nav" hidden>
+            <div class="category-head">
+              <button id="categoryBack" class="category-back" type="button">上级</button>
+              <span id="categoryCrumb" class="category-crumb">全部书签分类</span>
+            </div>
+            <div id="categoryGrid" class="category-grid"></div>
+          </section>
+          <div id="searchResults" class="search-results"></div>
+          <div id="pagination" class="pagination" hidden></div>
+        </section>
+      </div>
+      <div id="scrollbarOverlay" class="scrollbar-overlay" aria-hidden="true"><span></span></div>
+
+      <section id="editPanel" class="edit-panel" hidden>
+        <div class="edit-head">
+          <strong>编辑收藏</strong>
+          <button id="editClose" class="icon-button" type="button" aria-label="关闭编辑">×</button>
+        </div>
+        <input id="editTitle" type="text" placeholder="标题" />
+        <select id="editFolder"></select>
+        <input id="editTags" type="text" placeholder="标签，用逗号分隔" />
+        <textarea id="editWhy" rows="2" placeholder="备注"></textarea>
+        <div class="edit-actions">
+          <button id="editSave" class="primary" type="button">保存</button>
+          <button id="editCancel" class="ghost" type="button">取消</button>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

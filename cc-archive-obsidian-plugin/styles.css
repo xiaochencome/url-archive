@@ -1,0 +1,364 @@
+/* CC Archive 侧边面板 —— 全部使用 Obsidian 主题变量，自动适配明暗 */
+.cc-archive-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 14px 12px 20px;
+}
+
+/* 品牌头部 */
+.cc-archive-panel .cca-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cc-archive-panel .cca-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+.cc-archive-panel .cca-mark svg {
+  width: 22px;
+  height: 22px;
+}
+.cc-archive-panel .cca-title {
+  font-size: 1.05em;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-normal);
+}
+.cc-archive-panel .cca-subtitle {
+  margin-top: 1px;
+  font-size: 0.76em;
+  color: var(--text-muted);
+}
+
+/* 统计卡片 */
+.cc-archive-panel .cca-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.cc-archive-panel .cca-stat {
+  padding: 10px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  background: var(--background-secondary);
+}
+.cc-archive-panel .cca-stat-value {
+  font-size: 1.5em;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text-normal);
+}
+.cc-archive-panel .cca-stat-label {
+  margin-top: 2px;
+  font-size: 0.72em;
+  color: var(--text-muted);
+}
+
+/* 状态胶囊行 */
+.cc-archive-panel .cca-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cc-archive-panel .cca-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75em;
+  color: var(--text-muted);
+  background: var(--background-secondary);
+}
+.cc-archive-panel .cca-status .cca-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+.cc-archive-panel .cca-status.is-on {
+  color: var(--text-normal);
+}
+.cc-archive-panel .cca-status.is-on .cca-dot {
+  background: var(--color-green, #3fb950);
+  box-shadow: 0 0 0 3px rgba(63, 185, 80, 0.18);
+}
+.cc-archive-panel .cca-status.is-pending {
+  color: var(--text-normal);
+}
+.cc-archive-panel .cca-status.is-pending .cca-dot {
+  background: var(--color-yellow, #d29922);
+  box-shadow: 0 0 0 3px rgba(210, 153, 34, 0.18);
+}
+
+/* 分组 */
+.cc-archive-panel .cca-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cc-archive-panel .cca-section-title {
+  padding-left: 2px;
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.cc-archive-panel .cca-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 操作项 —— 覆盖 Obsidian 默认按钮样式 */
+.cc-archive-panel .cca-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: none;
+  font-size: 0.88em;
+  text-align: left;
+  color: var(--text-normal);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.cc-archive-panel .cca-action:hover {
+  background: var(--background-modifier-hover);
+  box-shadow: none;
+}
+.cc-archive-panel .cca-action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--background-secondary);
+  color: var(--text-accent);
+}
+.cc-archive-panel .cca-action-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.cc-archive-panel .cca-action-label {
+  flex: 1 1 auto;
+}
+.cc-archive-panel .cca-action-chevron {
+  display: flex;
+  align-items: center;
+  color: var(--text-faint);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.cc-archive-panel .cca-action-chevron svg {
+  width: 15px;
+  height: 15px;
+}
+.cc-archive-panel .cca-action:hover .cca-action-chevron {
+  opacity: 1;
+}
+
+/* ========== 结果类弹窗（语义搜索 / 问答 / 相关收藏） ========== */
+.cc-archive-modal .cca-modal-head {
+  margin-bottom: 14px;
+}
+.cc-archive-modal .cca-modal-title {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: var(--text-normal);
+}
+.cc-archive-modal .cca-modal-subtitle {
+  margin-top: 3px;
+  font-size: 0.82em;
+  color: var(--text-muted);
+}
+.cc-archive-modal .cca-modal-subhead {
+  margin: 16px 0 8px;
+  font-size: 0.72em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* 输入 */
+.cc-archive-modal .cca-modal-input {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+}
+.cc-archive-modal .cca-modal-textarea {
+  resize: vertical;
+  min-height: 64px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+.cc-archive-modal .cca-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+/* 状态文案 */
+.cc-archive-modal .cca-loading,
+.cc-archive-modal .cca-empty {
+  padding: 18px 4px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.88em;
+}
+.cc-archive-modal .cca-error {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--background-modifier-error-border, rgba(233, 0, 41, 0.35));
+  background: var(--background-modifier-error, rgba(233, 0, 41, 0.1));
+  color: var(--text-error, #e90029);
+  font-size: 0.85em;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 结果卡片列表 */
+.cc-archive-modal .cca-modal-results {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.cc-archive-modal .cca-result-list,
+.cc-archive-modal .cca-source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cc-archive-modal .cca-result {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 12px 14px;
+  text-align: left;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  background: var(--background-secondary);
+  box-shadow: none;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease, transform 0.12s ease;
+}
+.cc-archive-modal .cca-result:hover {
+  border-color: var(--interactive-accent);
+  background: var(--background-modifier-hover);
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+.cc-archive-modal .cca-source {
+  padding: 10px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  background: var(--background-secondary);
+}
+.cc-archive-modal .cca-result-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cc-archive-modal .cca-result-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.cc-archive-modal .cca-result-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  font-size: 0.72em;
+  font-weight: 700;
+  color: var(--text-on-accent);
+  background: var(--interactive-accent);
+}
+.cc-archive-modal .cca-result-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--text-normal);
+}
+.cc-archive-modal .cca-result-score {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  background: var(--background-modifier-border);
+}
+.cc-archive-modal .cca-result-domain {
+  margin-top: 4px;
+  font-size: 0.76em;
+  color: var(--text-accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cc-archive-modal .cca-result-summary {
+  display: -webkit-box;
+  margin-top: 6px;
+  font-size: 0.82em;
+  line-height: 1.5;
+  color: var(--text-muted);
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 问答答案 */
+.cc-archive-modal .cca-answer {
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------- 状态栏 ---------- */
+.cc-archive-status {
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.cc-archive-status:hover {
+  color: var(--text-accent);
+}
+
+/* 剪藏服务未启动时用警示色，避免用户以为已经打通 */
+.cc-archive-status.is-offline {
+  color: var(--text-warning, #e0a33e);
+}
